@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import firebase from '.././config/firebase';
 import { Table, Col, Container, Row } from 'react-bootstrap/';
 import { SpellInput } from './SpellInput';
+import addNotification from 'react-push-notification';
 var result = [];
+var showNotification = false;
 export default class MainComponent extends Component {
     constructor(props) {
         super(props);
@@ -16,12 +18,14 @@ export default class MainComponent extends Component {
         //const[spell, setSpell] = React.useState([])
     }
 
-    componentDidMount() {
+    componentDidMount() { 
         this.fetchData();
+        this.showNotification(); 
     }
-    componentDidUpdate(){
-        this.fetchData();
+    componentDidUpdate() {
 
+        this.fetchData();
+        
     }
     fetchData = async () => {
         const db = firebase.firestore();
@@ -38,11 +42,22 @@ export default class MainComponent extends Component {
             desc: this.state.desc,
             page: this.state.page
         };
-        console.log(formData);
         const db = firebase.firestore();
         db.collection("spell").add(formData)
+        this.showNotification();
+    }
+    showNotification() {
+            return addNotification({
+                title: 'Warning',
+                subtitle: 'This is a subtitle',
+                message: 'This is a very long message',
+                theme: 'darkblue',
+                native: true // when using native, your OS will handle theming.
+            });
+ 
     }
     render() {
+
         return (
             <div>
                 <Container>
@@ -50,8 +65,11 @@ export default class MainComponent extends Component {
                         <Col sm={12}>
                             <h5>FireStore Coming Data</h5>
                             <hr />
+                            <button onClick={this.showNotification} className="button">
+                                Hello world.
+                            </button>
                         </Col>
-                        <Col sm={6} style={{border : " 2px solid #ddd"}}>
+                        <Col sm={6} style={{ border: " 2px solid #ddd" }}>
 
                             <form>
                                 <div className="form-group">
