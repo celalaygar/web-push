@@ -18,15 +18,13 @@ export default class MainComponent extends Component {
         //const[spell, setSpell] = React.useState([])
     }
 
-    componentDidMount() { 
+    componentDidMount() {
         this.fetchData();
-        this.showNotification(); 
+        this.showNotification();
     }
-    componentDidUpdate() {
-
-        this.fetchData();
-        
-    }
+    // componentDidUpdate() {
+    //     this.fetchData();
+    // }
     fetchData = async () => {
         const db = firebase.firestore();
         const data = await db.collection("spell").get();
@@ -44,17 +42,39 @@ export default class MainComponent extends Component {
         };
         const db = firebase.firestore();
         db.collection("spell").add(formData)
-        this.showNotification();
+        this.showNotification2(formData.name, formData.desc, formData.page);
+        this.fetchData();
+    }
+    showNotification2(title, subtitle, message) {
+        return addNotification({
+            title: title,
+            subtitle: subtitle,
+            message: message,
+            theme: 'darkblue',
+            duration: 15000, //optional, default: 5000,
+            backgroundBottom: 'darkgreen',
+            backgroundTop: 'green',
+            native: true // when using native, your OS will handle theming.
+        });
+
     }
     showNotification() {
-            return addNotification({
-                title: 'Warning',
-                subtitle: 'This is a subtitle',
-                message: 'This is a very long message',
-                theme: 'darkblue',
-                native: true // when using native, your OS will handle theming.
-            });
- 
+        return addNotification({
+            title: 'Warning',
+            subtitle: 'This is a subtitle',
+            message: 'This is a very long message',
+            theme: 'darkblue',
+            duration: 15000, //optional, default: 5000,
+            backgroundBottom: 'darkgreen',
+            backgroundTop: 'green',
+            native: true // when using native, your OS will handle theming.
+        });
+
+    }
+    onDelete(spell){
+        const db = firebase.firestore();
+        db.collection('spell').doc(spell.id).delete();
+        this.fetchData();
     }
     render() {
 
@@ -66,7 +86,7 @@ export default class MainComponent extends Component {
                             <h5>FireStore Coming Data</h5>
                             <hr />
                             <button onClick={this.showNotification} className="button">
-                                Hello world.
+                                Show Notification
                             </button>
                         </Col>
                         <Col sm={6} style={{ border: " 2px solid #ddd" }}>
@@ -97,15 +117,24 @@ export default class MainComponent extends Component {
                                             <th>Name</th>
                                             <th>Desc</th>
                                             <th>Page</th>
+                                            <th>Show</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {this.state.spell.map(s => (
                                             <tr key={s.id}>
                                                 {/* <td>{s.id} </td> */}
-                                                <td><SpellInput spell={s} /> </td>
+                                                <SpellInput spell={s} />
                                                 <td>{s.desc} </td>
                                                 <td>{s.page} </td>
+                                                <td>
+                                                    <button onClick={() => this.showNotification2(s.name,s.desc,s.page)} className="btn btn-sm btn-info">
+                                                        Show
+                                                    </button>
+                                                    <button onClick={() => this.onDelete(s)} className="btn btn-sm btn-danger">
+                                                        Delete
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))
                                         }
